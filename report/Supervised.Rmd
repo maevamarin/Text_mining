@@ -1,0 +1,145 @@
+# Supervised learning
+
+In this section, we use a supervised learner to develop a classifier of the Politicans' speeches. The aim of this section is to have a classification model able to correctly attribute a random speech to Boris Johnson or Emmanuel Macron. To do so,  we first combine the dataframe of Boris Johnson with the dataframe of Emmanuel Macron. Since those dataframes differ in number of speechs and in length, we divide the speeches into sentences, which would smooth difference between our two dependent outcome possibilities.
+
+```{r,warning=FALSE}
+
+##Boris Johnson
+boris_2<-as_tibble(c(boris9mars,boris12mars,boris16mars,boris18mars,boris19mars,boris20mars,boris22mars)) %>%
+  rename(
+  text=value)
+author="Boris Johnson"
+boris_supervised<- cbind(boris_2, author)
+
+boris_2_sentence<-get_sentences(boris_supervised)
+##Emmanuel Macron
+Macron_2<-as_tibble(c(macron12march,macron16march,macron13april)) %>% 
+  rename(
+    text = value)
+
+author="Macron"
+macron_supervised<- cbind(Macron_2, author)
+
+macron_2_sentence<-get_sentences(macron_supervised)
+
+##Combine the 2 dataframes
+combine <- rbind(boris_2_sentence, macron_2_sentence)
+
+
+## Tokenization
+combine_corpus<-corpus(combine)
+combine_tokens<- tokens(combine_corpus, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE, remove_separators = TRUE)
+
+##combi Lemmatization
+
+
+combine_tokens <- tokens_replace(combine_tokens, pattern=hash_lemmas$token, replacement = hash_lemmas$lemma)
+
+
+## Cleaning
+combine_tokens = combine_tokens %>% 
+  tokens_tolower() %>% 
+  tokens_remove(stopwords("english"))
+
+y<-factor(docvars(combine_tokens,"author"))
+
+```
+
+Then, we build the featues. To this aim, we first compute the DTM matrix.
+
+```{r,warning=FALSE}
+combine.dfm<-dfm(combine_tokens)
+combine.dfm
+
+```
+
+## LSA
+
+Because of the huge number of tokens, the feature matrix obtained may be too big to train a model in a reasonable amount of time. We thus apply a reduction dimension technque in order to obtain less features while keeping the relevant information. LSA is the perfect technique to achieve this. We target 30 dimensions (30 subjects)
+```{r,warning=FALSE}
+
+combine_corpus.dfm <- dfm(combine_corpus)
+cmod<-textmodel_lsa(combine_corpus.dfm,nd=30)
+
+```
+
+## Random forest
+
+After preparing our data to be used by the learner, we decide to run a random forest, which is a robust method to find the best classification model by computing a large set of classification tree to obtain the most pertinent values of classification criterias.
+After building our model, we create a training and a test sets. In this simple context, in order to illustrate the concepts without too long computation times, we will limit ourselves to just one training set and one test set by applying the Pareto law 80-20. 
+
+```{r,warning=FALSE}
+set.seed(782)
+df<-data.frame(Class=y, x=cmod$docs)
+index.tr<-sample(size = round(0.8*length(y)),x=c(1:length(y)),replace = FALSE)
+
+df.tr<-df[index.tr,]
+df.te<-df[-index.tr,]
+
+
+combine.fit<-ranger(Class~.,
+                    data = df.tr)
+pred.te<-predict(combine.fit,df.te)
+
+```
+
+In order to see the prediction quality of the model, we call the confusionMatrix function in the caret package:
+
+```{r,warning=FALSE}
+
+confusionMatrix<-confusionMatrix(data=pred.te$predictions,reference = df.te$Class)
+confusionMatrix
+```
+
+
+The model has an accuracy of 80.5%, which is  being satisfying: a model is said to be satisfactory enough when reaching 80% of accuracy. Boris Johnson being the positive class, the model overestimates the sentences belonging to Emmanuel Macrons's speeches (specificity: 95.1%), while greatly underestimate the sentences of Boris Jonhson (sensitivity: 51.9%). 
+The prediction quality is not balanced between the two classes and the model is not able to classify correctly. One of the solutions would be to attribute weights to the sentences in order to mitigate the unaccurate results.
+
+
+## Improving the features
+
+\@ref(fig:accuracy)
+
+```{r accuracy,fig.cap="Accuracy"}
+nd.vec<-c(2,5,25,50,100,500,1000)
+acc.vec<-numeric(length(nd.vec))
+for (j in 1:length(nd.vec)) {
+  cmod<-textmodel_lsa(combine_corpus.dfm,nd=nd.vec[j])
+  df<-data.frame(class=y,x=cmod$docs)
+  df.tr<-df[index.tr,]
+  df.te<-df[-index.tr,]
+  
+  combine.fit<-ranger(class~.,
+                    data = df.tr)
+pred.te<-predict(combine.fit,df.te)
+acc.vec[j]<-confusionMatrix(data=pred.te$predictions,reference = df.te$class)$overall[1]
+  
+}
+acc.vec
+
+plot(acc.vec~nd.vec,type="b")
+
+```
+We can see that 100 is the best choice among the ones we tried. 
+
+```{r,warning=FALSE}
+set.seed(788)
+combine_corpus.dfm <- dfm(combine_corpus)
+cmod<-textmodel_lsa(combine_corpus.dfm,nd=100)
+
+df<-data.frame(class=y, x=cmod$docs)
+index.tr<-sample(size = round(0.8*length(y)),x=c(1:length(y)),replace = FALSE)
+
+df.tr<-df[index.tr,]
+df.te<-df[-index.tr,]
+
+
+combine.fit<-ranger(class~.,
+                    data = df.tr)
+pred.te<-predict(combine.fit,df.te)
+
+confusionmatrix_2<-confusionMatrix(data=pred.te$predictions,reference = df.te$class)
+confusionmatrix_2
+```
+
+By re-running the same model but by increasing dimensions rather than weighting the sentences, we observe an increase in accuracy (+3.97%), however the over-/underestimation of the speeches remains. Sensitivity has improved by 18.50% but the learner has a still a poor prediction ability, in spite of the increase of the dimensions.The improvement by weighting the independent variables would be potentially more efficient. We would keep it as being part of further investigations.

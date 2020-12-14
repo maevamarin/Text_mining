@@ -1,0 +1,329 @@
+# Topic Modelling
+
+In this chapter, we analzye the topics of the speechs of Boris Jonhson and Macron using :
+
+- LSA(Latent Semantic analysis). The core idea is to take a matrix of what we have — documents and terms — and decompose it into a separate   document-topic matrix and a topic-term matrix.
+ 
+- LDA(Latent Dirichlet Allocation).It uses dirichlet priors for the document-topic and word-topic distributions, lending itself to better generalization.
+
+And then we will combine the two dataset and do the same analysis.
+
+## Boris Johnson
+
+### LSA
+
+First, we make the DTM matrix. We are goin to use 3 dimensions, it means 3 differents topics.
+
+```{r,warning=FALSE}
+bmod<-textmodel_lsa(corpus_boris.dfm,nd=3)
+```
+
+To inspect the results, we can extract the matrices involved in the LSA decomposition.
+In the firs table, each components measures the link between the document and the topic.\@ref(tab:table-docs-boris)
+In the second table, each component measure the link between the document and the term. \@ref(tab:table-features-boris)
+
+LSA is typical a reduction technique. Instead of have N documents or M term, it is represented by K documents.
+
+```{r table-docs-boris,warning=FALSE}
+lsa_docs_boris<-head(bmod$docs)
+lsa_docs_boris<-data.frame(lsa_docs_boris)
+
+lsa_docs_boris%>%
+  kable(caption=" Link between document and topic") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+```{r table-features-boris,warning=FALSE}
+lsa_features_boris<-head(bmod$features)
+lsa_features_boris<-data.frame(lsa_features_boris)
+
+lsa_features_boris%>%
+  kable(caption=" Link between document and terms") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+Often the first dimension in LSA is associated with the document lenght. To see if it is true, we build a scatter-plot between the document lengt and Dimension 1.
+As we observe in the figure \@ref(fig:lsaboris), the dimension 1 is negatively correlated with the document lenght.
+Therefore the dimension 1 bring us not a lot of informations that we have already.
+
+```{r lsaboris,fig.cap="First dimension of the LSA - Boris Johnson"}
+ns<-apply(corpus_boris.dfm,1,sum) 
+plot(ns~bmod$docs [,1])
+```
+We clearly observe that the dimension 1 is negatively correlated with the document lenght.
+
+Now in order to make the link between the topics and the documents and the topics with term, we use biplot. We represent the dimension 2 and 3, beacause often the first component bring often little information. 
+
+Reminders:
+
+The seven speech are class by chronological order:
+  - 09 March (text1)
+  - 12 March (text2)
+  - 16 March (text3)
+  - 18 March (text5)
+  - 19 March (text6)
+  - 20 March (text7)
+  - 22 March (text8)
+  
+It is notable that the texts that are brought together over time are grouped together.And that the first speeches are the opposite of the last ones as we observe in the figure \@ref(fig:biplotboris)
+
+```{r biplotboris,fig.cap="Biplot - Boris Johnson"}
+biplot(y=bmod$docs[,2:3],x=bmod$features[,2:3],
+       col=c("grey","red"),
+       xlab = "Dimension 2",
+       ylab="Dimension 3")
+```
+
+We repeat the same analysis with TF-IDF. The influence of small weighted-frequent tokens is reduced.
+
+In the firs table \@ref(tab:table-docs-boris-2), each components measures the link between the document and the topic.
+In the second table \@ref(tab:table-features-boris-2) each component measure the link between the document and the term.
+
+
+```{r table-docs-boris-2,warning=FALSE}
+bmod_2<- textmodel_lsa(corpus_boris.tfidf, nd=3)
+
+lsa_docs_boris_2<-head(bmod_2$docs)
+lsa_docs_boris_2<-data.frame(lsa_docs_boris_2)
+
+lsa_docs_boris_2%>%
+  kable(caption=" Link between document and topic") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+```{r table-features-boris-2,warning=FALSE}
+
+lsa_features_boris_2<-head(bmod_2$features)
+lsa_features_boris_2<-data.frame(lsa_features_boris_2)
+
+lsa_features_boris_2%>%
+  kable(caption=" Link between document and terms") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+### LDA
+
+We now turn to the LDA. For illustration, we will make K=3 topis. 
+```{r,warning=FALSE}
+K<-3
+corpus_boris.dtm<- convert(corpus_boris.dfm, to="topicmodels")
+lda_boris<- LDA(corpus_boris.dtm ,k=K)
+
+```
+
+In the table \@ref(tab:table-term-boris), it is the list of the six most frequent term in each topic
+```{r table-term-boris,warning=FALSE}
+terms<-terms(lda_boris,6)
+terms<-data.frame(terms)
+
+terms %>%
+  kable(caption="List of the terms present in each topic") %>%
+  kable_styling(bootstrap_options = "striped")
+
+```
+
+In the table \@ref(tab:table-topic-boris), you can observe which text is related to which topic.
+
+```{r table-topic-boris,warning=FALSE}
+## To see the topics related to each document
+
+topics<-(topics(lda_boris,1))
+topics<-data.frame(topics)
+
+topics%>%
+  kable(caption="Topics") %>%
+  kable_styling(bootstrap_options = "striped")
+
+
+```
+
+We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the beta per topic according to this order. We observe in the figure \@ref(fig:betaboris) that the topic 1 that the 2 first terms are "now" and "go". We can image that the topic 1 is more focous on the urgency and on the keep going.
+
+```{r betaboris,fig.cap="Beta - Boris Johnson"}
+beta.td.boris<-tidy(lda_boris,matrix="beta")
+
+beta.top.term.boris<-beta.td.boris %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+
+beta.top.term.boris %>%
+  mutate(term=reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term,beta,fill=factor(topic))) +
+   geom_col(show.legend = FALSE)+
+  facet_wrap(~topic, scales = "free") +
+  coord_flip()+
+  scale_x_reordered()
+
+```
+
+Now, we compute the gamma, it shows the proportion of each topic within each document, as you can observe in the figure \@ref(fig:gammaboris). We note that each document represented a text.The texts are very distinctive.
+
+```{r gammaboris,fig.cap="Gamma - Boris Johnson"}
+gamma.td.boris<- tidy(lda_boris,matrix="gamma")
+
+
+gamma.td.boris %>%
+  ggplot(aes(document,gamma,fill=factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic,scales = "free")+
+  coord_flip()+
+  scale_x_reordered()
+```
+
+## Macron
+
+### LSA
+
+```{r,warning=FALSE}
+mmod<-textmodel_lsa(corpus_macron.dfm,nd=3)
+
+```
+
+To inspect the results, we can extract the matrices involved in the LSA decomposition
+
+
+\@ref(tab:table-document-macron)
+\@ref(tab:table-features-macron)
+
+```{r table-document-macron,warning=FALSE}
+
+lsa_docs_macron<-head(mmod$docs)
+lsa_docs_macron<-data.frame(lsa_docs_macron)
+
+lsa_docs_macron%>%
+  kable(caption=" Link between document and topic") %>%
+  kable_styling(bootstrap_options = "striped")
+
+```
+
+```{r table-features-macron,warning=FALSE}
+
+lsa_features_macron<-head(mmod$features)
+lsa_features_macron<-data.frame(lsa_features_macron)
+
+lsa_features_macron%>%
+  kable(caption=" Link between document and terms") %>%
+  kable_styling(bootstrap_options = "striped")
+
+
+```
+
+Often the first dimension in LSA is associated with the document lenght. To see if it is true, we build a scatter-plot between the document lengt and Dimension 1.
+
+```{r lsamacron,fig.cap="First dimension of the LSA - Emmanuel Macron"}
+ns_macron<-apply(corpus_macron.dfm,1,sum) 
+plot(ns_macron~mmod$docs [,1])
+```
+
+We clearly observe that the dimension 1 is negatively correlated with the document lenght, as we observe in the figure \@ref(fig:lsamacron).
+
+Now in order to make the link between the topics and the documents and the topics with term, we use biplot \@ref(fig:biplotmacron).
+
+```{r biplotmacron,fig.cap="Biplot - Emmanuel Macron"}
+biplot(y=mmod$docs[,2:3],x=mmod$features[,2:3],
+       col=c("grey","red"),
+       xlab = "Dimension 2",
+       ylab="Dimension 3")
+```
+We repeat the same analysis with TF-IDF
+
+\@ref(tab:table-document-macron-2)
+\@ref(tab:table-term-macron-2)
+
+```{r table-document-macron-2}
+mmod_2<- textmodel_lsa(corpus_macron.tfidf, nd=3)
+
+lsa_docs_macron_2<-head(mmod_2$docs)
+lsa_docs_macron_2<-data.frame(lsa_docs_macron_2)
+
+lsa_docs_macron_2%>%
+  kable(caption=" Link between document and topic") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+
+```{r table-term-macron-2}
+lsa_features_macron_2<-head(mmod_2$features)
+lsa_features_macron_2<-data.frame(lsa_features_macron_2)
+
+lsa_features_macron_2%>%
+  kable(caption=" Link between document and terms") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+### LDA
+
+We now turn to the LDA. For illustration, we will make K=5 topis. 
+```{r,warning=FALSE}
+K<-5
+corpus_macron.dtm<- convert(corpus_macron.dfm, to="topicmodels")
+lda_macron<- LDA(corpus_macron.dtm ,k=K)
+
+```
+Top terms per topic and top topic per document can be easily obtained. Belo, the six top terms and the top topic are extracted.
+\@ref(tab:lda-macron-term)
+
+\@ref(tab:lda-macron-topic)
+
+```{r lda-macron-term,warning=FALSE}
+
+terms_macron<-terms(lda_macron,6)
+terms_macron<-data.frame(terms_macron)
+
+terms_macron %>%
+  kable(caption="List of the terms present in each topic") %>%
+  kable_styling(bootstrap_options = "striped")
+
+```
+
+```{r lda-macron-topic,warning=FALSE}
+
+topics_macron<-(topics(lda_macron,1))
+topics_macron<-data.frame(topics_macron)
+
+topics_macron%>%
+  kable(caption="Topics") %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+
+We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the beta per topic according to this order. 
+
+\@ref(fig:betamacron)
+```{r betamacron,fig.cap="Beta - Emmanuel Macron"}
+
+beta.td.macron<-tidy(lda_macron,matrix="beta")
+
+beta.top.term.macron<-beta.td.macron %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+beta.top.term.macron %>%
+  mutate(term=reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term,beta,fill=factor(topic))) +
+  geom_col(show.legend = FALSE)+
+  facet_wrap(~topic, scales = "free") +
+  coord_flip()+
+  scale_x_reordered()
+
+```
+
+Now, we compute the gamma, it shows the proportion of each topic within each document.  We note that text 1 is related to the topic 1 4 and 5. Th test 3 is related to the topic 2. And the text 2 is related to the topic 3.
+\@ref(fig:gammamacron)
+
+```{r gammamacron,fig.cap="Gamma - Emmanuel Macron",warning=FALSE}
+gamma.td.macron<- tidy(lda_macron,matrix="gamma")
+
+gamma.td.macron %>%
+  ggplot(aes(document,gamma,fill=factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic,scales = "free")+
+  coord_flip()+
+  scale_x_reordered()
+```
+

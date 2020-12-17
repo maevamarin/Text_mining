@@ -2,7 +2,7 @@
 
 ## Data Acquisition
 
-About the data collection: to download the different speeches, we scrap the speeches from two different websites. The one’s from Macron come from the website of the Embassy of France in Washington DC (USA) and regarding Boris Johnson’s ones, they come from the official website of the government of the United-Kingdom. We took 7 speeches for Johnson and 3 for Macron, dating from the 9th march to the 13th April.
+About the data collection: to download the different speeches, we scrapped the speeches from two different websites. The ones from Macron come from the website of the Embassy of France in Washington DC (USA) and regarding Boris Johnson’s ones, they come from the official website of the government of the United-Kingdom. We took 7 speeches for Johnson and 3 for Macron, dating from the 9th March to the 13th April.
 
 ### Emmanuel Macron
 
@@ -44,7 +44,7 @@ The first speach of Macron was quite long , 162 sentences and the two next were 
 
 ### Boris Johnson
 
-We choose the 7 first speaches of the Prime Minister Johnson, table \@ref(tab:summary-boris-speeches), about the corona virus dating from the:
+We chose the 7 first speaches of the Prime Minister Johnson, table \@ref(tab:summary-boris-speeches), about the corona virus dating from the:
 - 09 March (text1)
 - 12 March (text2)
 - 16 March (text3)
@@ -108,15 +108,15 @@ boris<-corpus(c(boris9mars,boris12mars,boris16mars,boris18mars,boris19mars,boris
 kable(summary(boris), caption = "Johnson's speeches characteristics" ,align = "lccrr",digits = 4)
 ```
 
-Johnson made more speeches but shorter. His first speech was 609 words, then the following ones ranged from 793 to 1222 words.
+Johnson made more speeches but they are shorter in length. His first speech was 609 words, then the following ones ranged from 793 to 1222 words.
 
 ## Tokenisation, Lemmatization & Cleaning
 
-Numbers, punctuation, symbols and separators are removed, as well as unimportant words. Moreover, we cast all letters to their corresponding lower case version.
+Numbers, punctuation, symbols and separators are removed, as well as unimportant words. Moreover, we casted all letters to their corresponding lower case version.
 
-We use lexicon to replace each token by its lemma.
+We used lexicon to replace each token by its lemma.
 
-Here you can see the kept words words for each speech. 
+Here we can see the kept words words for each speech. 
 
 ### Emmanuel Macron
 
@@ -160,7 +160,7 @@ corpus_boris
 
 ## Document-Term Matrix DTM
 
-Now let's compute the word frequencies (TF) by documents. First, the tokens are grouped by the indicator Document, which allows to count the words by documents. 
+Now let's compute the word frequencies (TF) by documents. First, the tokens are grouped by the indicator Document, which allows to count the number of words by document. 
 
 ### Table
 
@@ -194,9 +194,9 @@ datatable(boris_tidy, class = "cell-border stripe")
 
 #### All text confused
 
-We only keep the 15 most frequent words for redability purpose and create barplots using ggplot and geom_col. The facetwrap function split the barplots per Document.
+We only kept the 15 most frequent words for redability purpose and created barplots using ggplot and geom_col. The facetwrap function splits the barplots per Document.
 
-«will» is the word the most used for Macron and Johnson.
+«will» is the most used word for both Macron and Johnson.
 
 *Emmanuel Macron*
 
@@ -241,8 +241,7 @@ We see that the list of the 15 most frequent terms is due to doc 2 ,4 and 3.
 
 #### Per text 
 
-Now we want to know which are the most frequent terms for each speach. The 5 more present words in each speech.
-
+Now we want to know which are the most frequent terms for each speech. The 5 most present words in each speech.
 
 *Emmanuel Macron*
 
@@ -280,16 +279,15 @@ boris_tidy %>%
   facet_wrap(~ document, scales = "free") 
 ```
 
-
 ## TF-IDF
 
 Now we repeat the same analysis using the TF-IDF.
 
-The tfidf matrix helps us to see the frequency of the tokens independently of the legnght of the documents. We then observe that some tokens are more specific to some documents. 
+The tfidf matrix helps us to see the frequency of the tokens independently of the lenght of the documents. We then observe that some tokens are more specific to some documents. 
 
 ### Emmanuel Macron
 
-Using TF-IDF, we see the most specific word of each speech.Regarding Macron`s speeches, figure \@ref(fig:tfidf-Macron), the first one had the word «count» for a specificity, it can be explained because it was the beginning of the corona and the number of patient was the main subject. For the second text it was the word «war», it‘s the famous speech where macron compared the corona virus crisis to a war against an invisible enemy. For it last speech, it’s the word “test”, dating of April and can be explained by the fact that he responds to the debate about the necessity of testing people or not.
+Using TF-IDF, we see the most specific word of each speech. Regarding Macron`s speeches, figure \@ref(fig:tfidf-Macron), the first one had the word «count» for a specificity, it can be explained because it was the beginning of the coronavirus crisis and the number of patients was the main subject. For the second text it was the word «war», it is the very famous speech where macron compared the coronavirus crisis to a war against an invisible enemy. For its last speech, it is the word “test”, dating of April and can be explained by the fact that he responded to the debate about the necessity to test people or not.
 
 ```{r tfidf-Macron, fig.cap="Most specific word for each Emmanuel Macron's speeches"}
 ## TFIDF no point when just on document, maybe add when combining texts
@@ -310,7 +308,7 @@ tidy(corpus_macron.tfidf) %>% filter(term %in% macron_index_tfidf$term) %>%
 
 ### Boris Johnson
 
-For Johnson,figure \@ref(fig:tfidf-Johnson), the word “outbreak” was specific for the 1st speech. The word “dangerous” for the second speech. The two first speeches seems to be more informative.Than the word “progress” and “school” for the following speeches, it was to announced that the number of case increased and that that measures were implement.The last next is characterized by the word “Jenrick” and “Robert”; it makes reference to Robert Jenrick a political man who explained the new protection measures.
+For Johnson,figure \@ref(fig:tfidf-Johnson), the word “outbreak” was specific for the 1st speech. The word “dangerous” for the second speech. The two first speeches seems to be more informative.Than the word “progress” and “school” for the following speeches, it was to announced that the number of case increased and that that measures were implement.The last next is characterized by the word “Jenrick” and “Robert”; it makes reference to Robert Jenrick, a political man who explained the new protection measures.
 
 ```{r tfidf-Johnson, fig.cap="Most specific word for each Emmanuel Johnson's speeches"}
 ## TFIDF no point when just on document, maybe add when combining texts
@@ -330,8 +328,7 @@ tidy(corpus_boris.tfidf) %>% filter(term %in% boris_index_tfidf$term) %>%
 
 ## Cloud of Words
 
-
-It is another method to see the most used words. The larger the word, the more frequently they are used.
+It is another method to see the most used words. The larger the word, the more frequently it is used.
 
 ### Usind DFM
 
@@ -349,10 +346,10 @@ textplot_wordcloud(corpus_boris.dfm, color=brewer.pal(8, "Dark2"))
 
 ### Using  TF-IDF
 
-We made a word of cloud to see other specific words containing in each text.
+We made a cloud of words to see other specific words contained in each text.
 
 Child, public, contact… other words which can be very specific to a subject. 
-The specific vocabulary for Johnson, as we see in the figure \@ref(fig:cloud-Johnson), it seems to be lighter than Macron’s one,\@ref(fig:cloud-macron) . School, child against war, count, test…
+The specific vocabulary for Johnson, as we see in the figure \@ref(fig:cloud-Johnson), seems to be lighter than Macron’s one,\@ref(fig:cloud-macron) . School, child against war, count, test…
 
 *Emmanuel macron*
 
@@ -367,12 +364,12 @@ textplot_wordcloud(corpus_boris.tfidf, color=brewer.pal(8, "Dark2"))
 ```
 
 
-Thanks to the TF-IDF , without reading all the text we can have a clear idea about the speeches and see a relation between the advance in time and the specific word.
+Thanks to the TF-IDF, without reading all the texts, we can have a clear idea about the speeches' content and see a relation between the advance in time and the specific word.
 
 ## Lexical Divesity Token Type Ratio TTR
 
 
-A TTR is comprised beetween 0 and 1. When equal to 1, it corresponds to a rich lexical diversity, this is to say that each token is from a different type. In opposite, if equal to 0, it mean that the corpus presents a poor lexical diversity (if he would use one word only).
+A TTR is comprised beetween 0 and 1. When equal to 1, it corresponds to a rich lexical diversity, this is to say that each token is from a different type. In opposite, if equal to 0, it means that the corpus presents a poor lexical diversity (if he would use one word only).
 
 
 ### Emmanuel Macron 
@@ -401,7 +398,7 @@ Johnson has quite a richer vocabulary, an average of 0,6 over the different corp
 
 ## Zipf's Law
 
-Now, we illustrate the Zipf's law on the discourses. The terms are ranked by their corresponding frequency (rank=1 for the most frequent), then plotted versus tehir rank. This is easily obtained using quanteda.
+Now, we illustrate the Zipf's law on the discourses. The terms are ranked by their corresponding frequency (rank=1 for the most frequent), then plotted versus their rank. This is easily obtained using quanteda.
 
 Using a log-log relation, this gives us a linear regression.
 
@@ -434,7 +431,7 @@ plot(log(frequency)~log(rank), data=corpus_boris_freq, pch=20)
 
 A larger index means more diversity.
 
-Regarding the yule’s index, which is a speech diversity index. For macron speeches \@ref(fig:yules-Macron), more it is long, less it is diverse. This is quite normal because longer is a text, more is it possible to have a repetition in term of type of tokens. It is not the case for Johnson as we can observe in the figure \@ref(fig:yules-Johnson). The first speech of Johnson is the shortest and the most diverse one but after it doesn’t follow any patterns. 
+We then computed the yule’s index, which is a speech diversity index. For Macron's speeches \@ref(fig:yules-Macron), the longer they are, the less diverse they are. This is quite normal because the longer a text is, the greater the chances to have a repetition in terms of token types. It is not the case for Johnson as we can observe in the figure \@ref(fig:yules-Johnson). The first speech of Johnson is the shortest and the most diverse one but after it does not follow any patterns. 
 
 ### Emmanuel Macron 
 
@@ -461,10 +458,10 @@ textstat_lexdiv(corpus_boris.dfm, measure = "I") %>%
 
 ## MATTR
 
-It is the Moving Average Type-Token Ratio. MATTR is less dependent on the lenght of the document.
+It is the Moving Average Type-Token Ratio. MATTR is less dependent on the length of the document.
 
-The rank of the speeches completely change comparing to the Yule's index. 
-Speeches which had a rich vocabulary diversification seems to had less vocabulary diversification with a windows of 10 words. 
+The rank of the speeches completely changed compared to the Yule's index. 
+Speeches which had a rich lexical diversity seem to have less lexical diversity with a windows of 10 words. 
 
 ### Emmanuel Macron 
 

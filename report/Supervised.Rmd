@@ -1,6 +1,6 @@
 # Supervised learning
 
-In this section, we use a supervised learner to develop a classifier of the Politicans' speeches. The aim of this section is to have a classification model able to correctly attribute a random speech to Boris Johnson or Emmanuel Macron. To do so,  we first combine the dataframe of Boris Johnson with the dataframe of Emmanuel Macron. Since those dataframes differ in number of speechs and in length, we divide the speeches into sentences, which would smooth difference between our two dependent outcome possibilities.
+In this section, we uses a supervised learner to develop a classifier of the Politicans' speeches. The aim of this section is to have a classification model that is able to correctly attribute a new speech to either Boris Johnson or Emmanuel Macron. To do so, we first combined the dataframe of Boris Johnson with the dataframe of Emmanuel Macron. Since those dataframes differ in the number of speeches and in their length, we divided the speeches into sentences, which would smooth the differences between our two dependent outcome possibilities.
 
 ```{r,warning=FALSE}
 
@@ -45,7 +45,7 @@ y<-factor(docvars(combine_tokens,"author"))
 
 ```
 
-Then, we build the featues. To this aim, we first compute the DTM matrix.
+Then, we built the featues. To this aim, we first computed the DTM matrix.
 
 ```{r,warning=FALSE}
 combine.dfm<-dfm(combine_tokens)
@@ -55,7 +55,8 @@ combine.dfm
 
 ## LSA
 
-Because of the huge number of tokens, the feature matrix obtained may be too big to train a model in a reasonable amount of time. We thus apply a reduction dimension technque in order to obtain less features while keeping the relevant information. LSA is the perfect technique to achieve this. We target 30 dimensions (30 subjects)
+Because of the huge number of tokens, the feature matrix obtained may be too big to train a model in a reasonable amount of time. We thus applied a dimension reduction technque in order to obtain less features while keeping the relevant information. LSA is the perfect technique to achieve this. We targeted 30 dimensions (30 subjects).
+
 ```{r,warning=FALSE}
 
 combine_corpus.dfm <- dfm(combine_corpus)
@@ -65,8 +66,8 @@ cmod<-textmodel_lsa(combine_corpus.dfm,nd=30)
 
 ## Random forest
 
-After preparing our data to be used by the learner, we decide to run a random forest, which is a robust method to find the best classification model by computing a large set of classification tree to obtain the most pertinent values of classification criterias.
-After building our model, we create a training and a test sets. In this simple context, in order to illustrate the concepts without too long computation times, we will limit ourselves to just one training set and one test set by applying the Pareto law 80-20. 
+After preparing our data to be used by the learner, we decided to run a random forest, which is a robust method to find the best classification model by computing a large set of classification tree to obtain the most pertinent values of classification criterias.
+After building our model, we created a training and a test sets. In this simple context, in order to illustrate the concepts without too long computation times, we limited ourselves to just one training set and one test set by applying the Pareto law 80-20. 
 
 ```{r,warning=FALSE}
 set.seed(782)
@@ -98,7 +99,7 @@ So, we have a good model in order to predict the speech of Macon, about 94%, but
 
 ## Improving the features
 
-In order to improve the accuracy, we look to improve the features construction. We may consider the elements fo feature construction as hyperparameters to be optimized. Therefore we compare differents dimensions with their corresponding accuracy. In the figure \@ref(fig:accuracy), we notice that with a dimension of 100, the accuracy will get higher than 84% !
+In order to improve the accuracy, we looked to improve the features construction. We may consider the elements for feature construction as hyperparameters to be optimized. Therefore, we compared different dimensions with their corresponding accuracy. In the figure \@ref(fig:accuracy), we noticed that with a dimension of 100, the accuracy gets higher than 84% !
 
 ```{r accuracy,fig.cap="Accuracy"}
 nd.vec<-c(2,5,25,50,100,500,1000)
@@ -141,4 +142,4 @@ confusionmatrix_2<-confusionMatrix(data=pred.te$predictions,reference = df.te$cl
 confusionmatrix_2
 ```
 
-By re-running the same model but by increasing dimensions rather than weighting the sentences, we observe an increase in accuracy,now the accuracy is 85.1%. Sensitivity has improved by 18.50% but the learner has a still a poor prediction ability, in spite of the increase of the dimensions.The improvement by weighting the independent variables would be potentially more efficient. We would keep it as being part of further investigations.
+By re-running the same model but by increasing dimensions rather than weighting the sentences, we observe an increase in accuracy, now the accuracy is 85.1%. Sensitivity has improved by 18.50% but the learner has a still a poor prediction ability, in spite of the increase of the dimensions. The improvement by weighting the independent variables would be potentially more efficient. We would keep it as being part of further investigations.

@@ -2,12 +2,10 @@
 
 ## Analysis with the "nrc" library
 
-We use the "nrc"  dictionary to start our sentiment analysis on the discourses of our two politicians. It is a dictionnary qualifying tokens by specific sentiments and by labelling them "negative" or "positive".
+We used the "nrc"  dictionary to start our sentiment analysis on the discourses of the two politicians. It is a dictionnary qualifying tokens by specific sentiments and by labelling them "negative" or "positive".
 
-To do so, we will match the tokens of both corpuses with the dictionnary by applying an inner join. However, to use the inner_join function, we need a table object, what our objects are not primarily. We reload the data to create objects specific to this stage, boris_2 and macron_2, which are registered as tibble and allowing the use of the inner_join function.
-From the token list per document boris.tok, we join the corresponding qualifier in nrc using an inner_joint: 
-
-
+To do so, we matched the tokens of both corpuses with the nrc dictionnary by applying an inner join. However, to use the inner_join function, we need a table object. We reloaded the data to create objects specific to this stage, boris_2 and macron_2, which are registered as tibble and allowing the use of the inner_join function.
+From the token list per document boris.tok, we joined the corresponding qualifier in nrc using an inner_joint: 
 
 ```{r}
 #####################################################################################################################################
@@ -65,11 +63,11 @@ macron_2.sent<- macron_2.tok %>%
 
 ```
 
-After creating our objects, we investigate which sentiment are present in Boris Johnson's discourses. To do so, we use a numerical and a graphical method.
+After creating our objects, we investigated which sentiment are present in Boris Johnson's discourses. To do so, we used a numerical and a graphical method.
 
-The numerical method is simply a matrix of the frequency of tokens identified to a certain sentiment. Remind that a word can have more than 1 sentiment, which can lead to slight an overestimation of the sentiment.
+The numerical method is simply a matrix of the frequency of tokens identifing with a certain sentiment. We should recall ourselves that one word can have more than one sentiment, which can lead to slight an overestimation of the sentiment.
 
-The table below presents positive discourses from the UK's First Minister which are mainly weighted by the sentiment "trust". We could have assumed that the discourse would be reassuring in order to avoid any panic due to the inedite circumstances of the covid. "Anticipation" is as well high, for the same reason (annoucement of the futures measures ans aaniticpations of the consequences, e.g.) 
+The table below presents positive discourses from the UK's First Minister which are mainly weighted by the sentiment "trust". We could have assumed that the discourse would be reassuring in order to avoid any panic due to the inedite circumstances of the covid. "Anticipation" is as well high, for the same reason (annoucement of the futures measures ans aaniticpations of the consequences, e.g.). 
 
 However, postive sentiments are balanced by the relative high score of the fear, followed by disgust and anger. In absolute values, the most sentimental discourse was the second public word, on March 12th 2020.
 
@@ -98,20 +96,17 @@ boris_2.sent %>%
 
 ```
 
-
 By looking now at the discourses of Macron using the same method, we note the seemingly same frequencies of sentiments in the table below. His words appear to be carefully built and the variance is very low, perhaps to give the impression to have a stable and coherent speeches overtime.
 
-The categories of sentiments are quite similarly distributed: the speeches are positive marked by trust and anticipation.
+The categories of sentiments are quite similarly distributed: the speeches are positively marked by trust and anticipation.
 
-The proportions in the barplots are the same for speech 1, 2, and 3. We might assume they are based on a specific inner structure.
+The proportions in the barplots are the same for speeches 1, 2, and 3. We might assume they are based on a specific inner structure.
 The construction of text The French President would read is cautiously studied. 
 This point, combined with the observation on the length, is interesting: Emmanuel Macron speaks more during less public orations, in order to have more powerful public interventions
-
 
 ```{r }
 table(macron_2.sent$Document,macron_2.sent$sentiment) %>% kable() %>% kable_styling() # sentiment terms per document
 ```
-
 
 ```{r}
 macron_2.sent %>% 
@@ -133,10 +128,9 @@ macron_2.sent %>%
 
 In order to better analyse those results and fortify those insights, we double check with the dictionnary LSD2015. It is another dictionnary assigning a qualifier to terms. The difference with tidytext is essentially in the manipulation of the objects: it handles the "tokens" class and for this reason we have to recode our objects. The results are impacted by this different treatment and we do expect slight changes. 
 
-As the figure \@ref(fig:plot-quanteda) shows, the results of Text 2 as the most positive and all the discourses as majoritarily positive are confirmed. For Macron's speeches, the proportions of sentiments differs: the first discourse is associated with more postive sentiment (224) relatively to proportion computed with the "nrc" dictionnary (193). However, the trend remains the same.
+As the figure \@ref(fig:plot-quanteda) shows, the results of Text 2 as the most positive and all the discourses as majoritarily positive are confirmed. For Macron's speeches, the proportions of sentiments differ: the first discourse is associated with more postive sentiment (224) relatively to proportion computed with the "nrc" dictionnary (193). However, the trend remains the same.
 
-We keep in mind that difference in length of texts explains the varying size of the bar, as previously. Anyway both findings converge to the same points.
-
+We keep in mind that the difference in the length of the texts explains the varying size of the bars, as previously. Anyway both findings converge to the same points.
 
 ```{r plot-quanteda,fig.cap="Proportion of sentiment using the dictionnary LSD2015"}
 ######################################################################################################################################
@@ -194,15 +188,13 @@ grid.arrange(boris.plot.quanteda,macron.plot.quanteda)
 
 ```
 
-
-
 ## Analysis with the "afinn" dictionnary
 
 We now use a different approach: a quantitative way to assess the sentiment analysis. To do so, we use the "afinn" dictionnary which attributes a value to the word, taking into account the power conveyed by the term (value between 0 and 1) and its qualitative classification (positive or neagtive sign). The classification of the words was encoded differently than for the "nrc" dictionnary. Again, we do expect different scores, but hopefully in the same direction. 
 
-The results displayed by the figure  \@ref(fig:plot-afinn) are derived from an average score of sentiment per document. For the Boris Johnson's speeches, the second one has a contradictory score with the previous results: it belongs to the lowest scored text in positive sentiments.
+The results displayed by the figure  \@ref(fig:plot-afinn) are derived from an average score of the sentiments per document. For the Boris Johnson's speeches, the second one has a contradictory score with the previous results: it belongs to the lowest scored text in positive sentiments.
 
-We can thus observe the difference in encodage among dictionnaries used in Text Mining. The "afinn" dictionnarywas encoded by a Danish Professor, LSD2015 by two American professors, and "nrc" by a Canadian professors working in an Commision on Ethics. The categorization is subjective and lead to substantial differences. Those results need to be mitigate by a last approach: the use of valence shifters.
+We can thus observe the difference in encodage among dictionnaries used in Text Mining. The "afinn" dictionnary was encoded by a Danish Professor, LSD2015 by two American professors, and "nrc" by a Canadian professors working in an Commision on Ethics. The categorization is subjective and leads to substantial differences. Those results need to be mitigate by a last approach: the use of valence shifters.
 
 
 ```{r plot-afinn,fig.cap="Graphical representation: Sentiment score per text by using afinn dictionnary"}
@@ -240,17 +232,15 @@ macron.plot.afinn <- aggregate(value~Document, data =macron_2.sent,FUN=mean) %>%
 grid.arrange(boris.plot.afinn,macron.plot.afinn)
 ```
 
-
 ### Analysis using "nrc"" dictionnary and valence shifters
 
+The sentimentr library offers some function to compute sentiments integrating valence shiters. There are specific words which amplify or reduce the power of a word, or even turn it into the reverse sentiment. We evaluate sentences here, and one important aspect is that it cannot be applied to a Bag Of Word model, since the word order is necessary.
 
-The sentimentr library offers some function to compute sentiments integrating valence shiters. There are specific words which amplify or reduce the power of a word, even turn it into the reverse sentiment. We evaluate sentences here, and one important aspect is that it cannot be applied to a Bag Of Word model, since the word order is necessary.
+Valence shifters extract more acurately the sentiments of the texts, since they consider the sentiments conveyed by a sentence and not only words without their context. We should take the insights given by valence shifters as the ultimate confirmation test for the previous results. The results are displayed by the plot \@ref(fig:plot-valence-shifter).
 
-The valence shifters extract more acurately the sentiment ouf of the text, since it consider the sentiment conveyed by a sentence and not only words without context. We should take the insights given by valence shifters as the ultimate confirmation test for the previous results. The results are displayed by the plot \@ref(fig:plot-valence-shifter).
+The second discourse of the Prime Minister here is one of the longest: it contains about 50 sentences and is only preceded by the fourth public word, on March 18th. It is the one varying the most in sentiment, what might explain the dffference in values observed between LSD2015&nrc with afinn dictionnary. Why? Simply because it was the first speech speaking openly about the covid and the serious measures to take. The sixth one shows one positive peak, what corresponds to the moment when Boris Johnson strengthened the measures and made a speech to reassure the UK citizens. At this time, the measures taken were more rigid: the spread of the virus had intensifyied. He brought information with positive sentiments to unify the population under the new circumstances and motivated his people by showing them the positive impact of respecting stonger measures. 
 
-The second discourse of the Prime Minister here is one of the longest: it contains about 50 sentences and is only preceded by the fourth public word, on March 18th. It is the one varying the most in sentiment, what might explains the dffference in values observed between LSD2015&nrc with afinn dictionnary. Why? Simply because it was the first speech speaking openly about the covid and the serious measures to take. The sixth one shows one positive peak, what correspond to the moment whn Boris Johnson strengthened the measures and made a speech to reassure UK citizen. At this time, the measures taken weremore rigid: thre spread of the virus had intensifyied. He brought information with positive sentiments to unify the population under the new circumstances and to push the to obey by showing them the positive impact of respecting stonger measures. 
-
-Macron's speeches are well longer, three times more than Boris Johnson's ones, as we observe in the second plot. His words are generally more neutral but convey sometimes strong negative sentiments, like the 4th sentence. Actually, this sentence is not strongly negative but uses terms which are: "In the vast majority of cases, COVID-19 does not pose a threat, but the virus can have very serious consequences, especially for those of our fellow citizens who are elderly or suffer from chronic illnesses such as diabetes, obesity or cancer". The variation of the sentiments  is greater in the last allocution, on April 13th 2020.  Serious + consequences, chronic + illness, diabete+ obesity + cancer aside amplify the seriousness of the sentence. We observe as well a greater variation in sentiments the last allocution of Emmanuel Macon, on April 13th 2020.  It corresponds to the moment when the situation became critical in France. The President emphasizes the serious danger of the covid, the sanitary situation being worse than in UK.
+Macron's speeches are well longer, three times more than Boris Johnson's ones, as we observe in the second plot. His words are generally more neutral but sometimes convey strong negative sentiments, like the 4th sentence. Actually, this sentence is not strongly negative but uses terms which are: "In the vast majority of cases, COVID-19 does not pose a threat, but the virus can have very serious consequences, especially for those of our fellow citizens who are elderly or suffer from chronic illnesses such as diabetes, obesity or cancer". The variation of the sentiments is greater in the last allocution, on April 13th 2020.  Serious + consequences, chronic + illness, diabetes + obesity + cancer aside amplify the seriousness of the sentence. We observe as well a greater variation in sentiments the last allocution of Emmanuel Macon, on April 13th 2020.  It corresponds to the moment when the situation became critical in France. The President emphasizes the serious danger of the Covid-19, the sanitary situation being worse than in UK.
 
 ```{r plot-valence-shifter,fig.cap="Evolution of the sentiments within speeches  using valence shifters"}
 boris.text<-get_sentences(boris)

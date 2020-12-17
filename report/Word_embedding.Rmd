@@ -1,11 +1,11 @@
 # Word Embedding
 
-A word embedding is a learned representation for text where words that have the same meaning have a similar representation.
+A word embedding is a learned representation for texts where words that have the same meaning have a similar vector representation.
 This is a method of learning a representation of words used in particular in automatic language processing. The term should rather be rendered by vectorisation of words in order to correspond more neatly to this method.
 
 ## Boris Johnson
 
-Here, we compute the co-occurence matrix. We use the fcm function from quanteda. We use a window lenght 5. 
+Here, we computed the co-occurence matrix. We used the fcm function from quanteda. We used a window lenght 5. 
 
 ```{r,warning=FALSE}
 speech.coo.boris<-fcm(corpus_boris,context="window",window=5, tri=FALSE)
@@ -16,8 +16,9 @@ p<-2 #word embedding dimension
 speech.glove.boris<-GlobalVectors$new(rank = p,x_max = 10) #xmas is a neede technical option
 speech.weC.boris<-speech.glove.boris$fit_transform(speech.coo.boris)
 ```
-For illustration purpose, we now plot the 50 most used terms as you can observe in the figure \@ref(fig:speech-we).
-More the words are close, more they are similar. Two word are similar if they are often use in the same context.
+
+For illustration purpose, we plotted the 50 most used terms as we can observe in the figure \@ref(fig:speech-we).
+The closer the words in the embedding space, the more similar they are. Two words are similar if they are often used in the same context.
 
 ```{r speech-we,fig.cap="The 50 most used terms"}
 n.w.boris<-apply(corpus_boris.dfm,2,sum) #compute the number of times each term is used
@@ -26,7 +27,7 @@ plot(speech.weC.boris[index,],type = "n",xlab = "Dimension 1", ylab = "Dimendion
 text(x=speech.weC.boris[index,],labels = rownames(speech.weC.boris[index,]))
 ```
 
-In the figure \@ref(fig:dendogram-boris)
+In the figure \@ref(fig:dendogram-boris),
 
 ```{r dendogram-boris,fig.cap="Cluster Dendogram"}
 speech.dtm <-corpus_boris.dfm
@@ -38,15 +39,13 @@ speech.hc.boris<-hclust(as.dist(speech.rwmd.boris))
 plot(speech.hc.boris,cex=0.8)
 ```
 
-We can observe that there is some coherence within the groups in terms the date of the speech. 
+We can observe that there is some coherence within the groups in terms the dates of the speeches. 
 
 ```{r,warning=FALSE}
 speech.cl.boris<- cutree(speech.hc.boris,k=4)
 corpus_boris.dfm[speech.cl.boris==1,] 
 
 ```
-
-
 
 ## Macron
 
@@ -60,7 +59,7 @@ speech.glove.macron<-GlobalVectors$new(rank = p,x_max = 10) #xmas is a neede tec
 speech.weC.macron<-speech.glove.macron$fit_transform(speech.coo.macron)
 ```
 
-For illustration purpose, we now plot the 50 most used terms
+For illustration purpose, we plotted the 50 most used terms.
 
 \@ref(fig:speech-we-macron)
 
@@ -70,6 +69,7 @@ index<-order(n.w.macron,decreasing = TRUE)[1:50]
 plot(speech.weC.macron[index,],type = "n",xlab = "Dimension 1", ylab = "Dimendion 2")
 text(x=speech.weC.macron[index,],labels = rownames(speech.weC.macron[index,]))
 ```
+
 \@ref(fig:dendogram-macron)
 
 ```{r dendogram-macron,fig.cap="Cluser Dendogram"}
@@ -81,10 +81,10 @@ speech.rwmd.macron<-speech.rwmd.model.macron$dist2(corpus_macron.dfm)
 speech.hc.macron<-hclust(as.dist(speech.rwmd.macron))
 plot(speech.hc.macron,cex=0.8)
 ```
-We can observe that there is some coherence within the groups in terms the date of the speech. 
+
+We can observe that there is some coherence within the groups in terms the dates of the speeches. 
 
 ```{r,warning=FALSE}
 speech.cl.macron<- cutree(speech.hc.macron,k=2)
 corpus_macron.dfm[speech.cl.macron==1,]
 ```
-

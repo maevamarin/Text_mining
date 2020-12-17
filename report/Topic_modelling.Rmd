@@ -9,17 +9,17 @@ We have first analyzed the speeches of Johnson and Macron separately and we have
 
 ### LSA
 
-First, we make the DTM matrix. We are goin to use 3 dimensions, it means 3 differents topics.
+We first computed the DTM matrix. We used 3 dimensions, which means 3 differents topics.
 
 ```{r,warning=FALSE}
 bmod<-textmodel_lsa(corpus_boris.dfm,nd=3)
 ```
 
 To inspect the results, we can extract the matrices involved in the LSA decomposition.
-In the firs table, each components measures the link between the document and the topic.\@ref(tab:table-docs-boris)
-In the second table, each component measure the link between the document and the term. \@ref(tab:table-features-boris)
+In the first table, each component measures the link between the document and the topic.\@ref(tab:table-docs-boris)
+In the second table, each component measures the link between the document and the term. \@ref(tab:table-features-boris)
 
-LSA is typical a reduction technique. Instead of have N documents or M term, it is represented by K documents.
+LSA is typical a reduction technique. Instead of having a M (documents) x N (terms) matrix, we represented it by K topics.
 
 ```{r table-docs-boris,warning=FALSE}
 lsa_docs_boris<-head(bmod$docs)
@@ -39,21 +39,21 @@ lsa_features_boris%>%
   kable_styling(bootstrap_options = "striped")
 ```
 
-Often the first dimension in LSA is associated with the document lenght. To see if it is true, we build a scatter-plot between the document lengt and Dimension 1.
-As we observe in the figure \@ref(fig:lsaboris), the dimension 1 is negatively correlated with the document lenght.
-Therefore the dimension 1 bring us not a lot of informations that we have already.
+Often, the first dimension in LSA is associated with the document length. To see if it is true, we build a scatter-plot between the document length and dimension 1.
+As we observe in the figure \@ref(fig:lsaboris), dimension 1 is negatively correlated with the document length.
 
 ```{r lsaboris,fig.cap="First dimension of the LSA - Boris Johnson"}
 ns<-apply(corpus_boris.dfm,1,sum) 
 plot(ns~bmod$docs [,1])
 ```
-We clearly observe that the dimension 1 is negatively correlated with the document lenght.
 
-Now in order to make the link between the topics and the documents and the topics with term, we use biplot. We represent the dimension 2 and 3, beacause often the first component bring often little information. 
+We clearly observe that dimension 1 is negatively correlated with the document length.
 
-Reminders:
+Now in order to make the link between the topics and the documents and the topics with terms, we use a biplot. We represent the dimensions 2 and 3, because the first component often brings little information. 
 
-The seven speech are class by chronological order:
+Reminder:
+
+The seven speeches are ordered by chronological order:
   - 09 March (text1)
   - 12 March (text2)
   - 16 March (text3)
@@ -71,10 +71,10 @@ biplot(y=bmod$docs[,2:3],x=bmod$features[,2:3],
        ylab="Dimension 3")
 ```
 
-We repeat the same analysis with TF-IDF. The influence of small weighted-frequent tokens is reduced.
+We repeated the same analysis with TF-IDF. The influence of small weighted-frequent tokens is reduced.
 
-In the firs table \@ref(tab:table-docs-boris-2), each components measures the link between the document and the topic.
-In the second table \@ref(tab:table-features-boris-2) each component measure the link between the document and the term.
+In the first table \@ref(tab:table-docs-boris-2), each component measures the link between the documents and the topics.
+In the second table \@ref(tab:table-features-boris-2), each component measures the link between the documents and the terms.
 
 
 ```{r table-docs-boris-2,warning=FALSE}
@@ -100,7 +100,8 @@ lsa_features_boris_2%>%
 
 ### LDA
 
-We now turn to the LDA. For illustration, we will make K=3 topis. 
+We then computed the LDA. For illustration, we used K=3 topics. 
+
 ```{r,warning=FALSE}
 K<-3
 corpus_boris.dtm<- convert(corpus_boris.dfm, to="topicmodels")
@@ -108,7 +109,8 @@ lda_boris<- LDA(corpus_boris.dtm ,k=K)
 
 ```
 
-In the table \@ref(tab:table-term-boris), it is the list of the six most frequent term in each topic
+In the table \@ref(tab:table-term-boris), we can see the list of the six most frequent terms per topic.
+
 ```{r table-term-boris,warning=FALSE}
 terms<-terms(lda_boris,6)
 terms<-data.frame(terms)
@@ -119,7 +121,7 @@ terms %>%
 
 ```
 
-In the table \@ref(tab:table-topic-boris), you can observe which text is related to which topic.
+In the table \@ref(tab:table-topic-boris), we can observe which text is related to which topic.
 
 ```{r table-topic-boris,warning=FALSE}
 ## To see the topics related to each document
@@ -134,7 +136,7 @@ topics%>%
 
 ```
 
-We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the betas per topic according to this order. We observe in the figure \@ref(fig:betaboris) that topic 1 is correlated to the tokens "will", "go" and "want", topic 2 to the token "school" and topic 3 to the tokens "now", "can" and "will".
+We then built the bar plot to inspect the per-topic-per-word probabilities (beta's). We took the top 10 terms and rearranged the betas per topic according to this order. We observe in the figure \@ref(fig:betaboris) that topic 1 is correlated to the tokens "will", "go" and "want", topic 2 to the token "school" and topic 3 to the tokens "now", "can" and "will".
 
 ```{r betaboris,fig.cap="Beta - Boris Johnson"}
 beta.td.boris<-tidy(lda_boris,matrix="beta")
@@ -156,8 +158,7 @@ beta.top.term.boris %>%
 
 ```
 
-Now, we compute the gamma, it shows the proportion of each topic within each document, as you can observe in the figure \@ref(fig:gammaboris). We see that the first speeches are related to topic 3 ("now", "can", "will"). This makes sense as those speeches were made in the begining of the pandemic and are linked to a sense of urgency. The speeches in the middle correspond to the second topic and all the measures implented for schools. The three last speeches are represented by the first topic only, and are correlated to the tokens "will", "go" and "want". We can conlude from this that the British Prime Minster wanted his citizens to keep up the efforts.
-
+Now, we calculated the gammas, which show the proportions of each topic within each document, as we can observe in the figure \@ref(fig:gammaboris). We see that the first speeches are related to topic 3 ("now", "can", "will"). This makes sense as those speeches were made in the begining of the pandemic and are linked to a sense of urgency. The speeches in the middle correspond to the second topic and all the measures implented for schools. The three last speeches are represented by the first topic only, and are correlated to the tokens "will", "go" and "want". We can conlude from this that the British Prime Minster wanted his citizens to keep up the efforts.
 
 ```{r gammaboris,fig.cap="Gamma - Boris Johnson"}
 gamma.td.boris<- tidy(lda_boris,matrix="gamma")
@@ -180,8 +181,7 @@ mmod<-textmodel_lsa(corpus_macron.dfm,nd=3)
 
 ```
 
-To inspect the results, we can extract the matrices involved in the LSA decomposition
-
+To inspect the results, we can extract the matrices involved in the LSA decomposition.
 
 \@ref(tab:table-document-macron)
 \@ref(tab:table-features-macron)
@@ -209,16 +209,16 @@ lsa_features_macron%>%
 
 ```
 
-Often the first dimension in LSA is associated with the document lenght. To see if it is true, we build a scatter-plot between the document lengt and Dimension 1.
+Often the first dimension in LSA is associated with the document length. To see if it is true, we build a scatter-plot between the document length and dimension 1.
 
 ```{r lsamacron,fig.cap="First dimension of the LSA - Emmanuel Macron"}
 ns_macron<-apply(corpus_macron.dfm,1,sum) 
 plot(ns_macron~mmod$docs [,1])
 ```
 
-We clearly observe that the dimension 1 is negatively correlated with the document lenght, as we observe in the figure \@ref(fig:lsamacron).
+We clearly observe that the dimension 1 is negatively correlated with the document length.
 
-Now in order to make the link between the topics and the documents and the topics with term, we use biplot \@ref(fig:biplotmacron). We clearly observe in this figure that each text correspond to a specific topic, they don't do in the same direction.
+Now in order to make the link between the topics and the documents and the topics with term, we used a biplot, composed by the second dimension on the x-axis and the third dimension on the y-axis.
 
 ```{r biplotmacron,fig.cap="Biplot - Emmanuel Macron"}
 biplot(y=mmod$docs[,2:3],x=mmod$features[,2:3],
@@ -226,8 +226,8 @@ biplot(y=mmod$docs[,2:3],x=mmod$features[,2:3],
        xlab = "Dimension 2",
        ylab="Dimension 3")
 ```
-We repeat the same analysis with TF-IDF, \@ref(tab:table-document-macron-2),\@ref(tab:table-term-macron-2)
 
+We repeated the same analysis with TF-IDF, \@ref(tab:table-document-macron-2),\@ref(tab:table-term-macron-2)
 
 ```{r table-document-macron-2}
 mmod_2<- textmodel_lsa(corpus_macron.tfidf, nd=3)
@@ -240,7 +240,6 @@ lsa_docs_macron_2%>%
   kable_styling(bootstrap_options = "striped")
 ```
 
-
 ```{r table-term-macron-2}
 lsa_features_macron_2<-head(mmod_2$features)
 lsa_features_macron_2<-data.frame(lsa_features_macron_2)
@@ -250,10 +249,9 @@ lsa_features_macron_2%>%
   kable_styling(bootstrap_options = "striped")
 ```
 
-
 ## Combine
 
-We combine the speeches of both authors in the same dataframe, that will have a total of ten speeches.
+We combined the speeches of both authors in the same dataframe, that will have a total of ten speeches.
 
 ```{r,warning=FALSE}
 ##Boris Johnson
@@ -291,21 +289,19 @@ combine_tokens = combine_tokens %>%
 
 ### LSA
 
-
 ```{r,warning=FALSE}
 combine_corpus.dfm <- dfm(combine_tokens)
 cmod<-textmodel_lsa(combine_corpus.dfm,nd=6)
 ```
 
-Often the first dimension in the LSA is associated with the document length. To see if it is true, we build a scatter-plot between the document length and Dimension 1. We clearly observe that the three last documents are the longest ones and they all correspond to Macron's speeches.
+Often the first dimension in the LSA is associated with the document length. To see if it is true, we built a scatter-plot between the document length and dimension 1. We clearly observe that the three last documents are the longest ones and they all correspond to Macron's speeches.
 
 ```{r,warning=FALSE}
 ns_combine<-apply(combine_corpus.dfm,1,sum) 
 plot(ns_combine~cmod$docs [,1])
 ```
 
-We then decide to proceed to the analysis using the second and third dimensions,figure \@ref(fig:biplot-combine), as we have observed that the first dimension is negatively correlated to the document length and does not therefore bring us a lot of information. We see that the speeches of Macron and Johnson are represented by different dimensions. Macron's speeches correspond better to the second dimension (documents 8, 9 and 10), whereas the third dimension is better represented by Johnson. This tells us that without building any further model and just by looking at the biplot corresponding to the second and third dimensions, we can guess whether a new corpus would belong to Johnson or to Macron.
-
+We then decide to proceed to the analysis using the second and third dimensions, as we have observed that the first dimension is negatively correlated to the document length and therefore does not  bring us a lot of information. We see that the speeches of Macron and Johnson are represented by different dimensions. Macron's speeches correspond better to the second dimension (documents 8, 9 and 10), whereas the third dimension is better represented by Johnson. This tells us that without building any further model and just by looking at the biplot corresponding to the second and third dimensions, we can guess whether a new corpus would belong to Johnson or to Macron.
 
 ```{r biplot-combine,warning=FALSE}
 biplot(y=cmod$docs[,2:3],x=cmod$features[,2:3],
@@ -313,4 +309,3 @@ biplot(y=cmod$docs[,2:3],x=cmod$features[,2:3],
        xlab = "Dimension 2",
        ylab="Dimension 3")
 ```
-

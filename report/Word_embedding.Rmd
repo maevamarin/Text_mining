@@ -88,6 +88,3 @@ speech.cl.macron<- cutree(speech.hc.macron,k=2)
 corpus_macron.dfm[speech.cl.macron==1,]
 ```
 
-## Comparison
-
-

@@ -91,14 +91,14 @@ confusionMatrix<-confusionMatrix(data=pred.te$predictions,reference = df.te$Clas
 confusionMatrix
 ```
 
-
-The model has an accuracy of 80.5%, which is  being satisfying: a model is said to be satisfactory enough when reaching 80% of accuracy. Boris Johnson being the positive class, the model overestimates the sentences belonging to Emmanuel Macrons's speeches (specificity: 95.1%), while greatly underestimate the sentences of Boris Jonhson (sensitivity: 51.9%). 
-The prediction quality is not balanced between the two classes and the model is not able to classify correctly. One of the solutions would be to attribute weights to the sentences in order to mitigate the unaccurate results.
+The model has an accuracy of 77.3%, is is a quite poor accuracy, but enough good for a first try.
+But… if we have a look one the sensitivity ( which is the % of predict the positive class, here this is Boris johnson) it is only 44.2%. 
+So, we have a good model in order to predict the speech of Macon, about 94%, but much less to predict Boris Johnson. 
 
 
 ## Improving the features
 
-\@ref(fig:accuracy)
+In order to improve the accuracy, we look to improve the features construction. We may consider the elements fo feature construction as hyperparameters to be optimized. Therefore we compare differents dimensions with their corresponding accuracy. In the figure \@ref(fig:accuracy), we notice that with a dimension of 100, the accuracy will get higher than 84% !
 
 ```{r accuracy,fig.cap="Accuracy"}
 nd.vec<-c(2,5,25,50,100,500,1000)
@@ -120,7 +120,6 @@ acc.vec
 plot(acc.vec~nd.vec,type="b")
 
 ```
-We can see that 100 is the best choice among the ones we tried. 
 
 ```{r,warning=FALSE}
 set.seed(788)
@@ -142,4 +141,4 @@ confusionmatrix_2<-confusionMatrix(data=pred.te$predictions,reference = df.te$cl
 confusionmatrix_2
 ```
 
-By re-running the same model but by increasing dimensions rather than weighting the sentences, we observe an increase in accuracy (+3.97%), however the over-/underestimation of the speeches remains. Sensitivity has improved by 18.50% but the learner has a still a poor prediction ability, in spite of the increase of the dimensions.The improvement by weighting the independent variables would be potentially more efficient. We would keep it as being part of further investigations.
+By re-running the same model but by increasing dimensions rather than weighting the sentences, we observe an increase in accuracy,now the accuracy is 85.1%. Sensitivity has improved by 18.50% but the learner has a still a poor prediction ability, in spite of the increase of the dimensions.The improvement by weighting the independent variables would be potentially more efficient. We would keep it as being part of further investigations.

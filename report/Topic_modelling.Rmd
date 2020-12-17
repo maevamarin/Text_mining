@@ -1,12 +1,9 @@
-# Topic Modelling
+# Topic Modelling    
 
-In this chapter, we analzye the topics of the speechs of Boris Jonhson and Macron using :
-
-- LSA(Latent Semantic analysis). The core idea is to take a matrix of what we have — documents and terms — and decompose it into a separate   document-topic matrix and a topic-term matrix.
- 
-- LDA(Latent Dirichlet Allocation).It uses dirichlet priors for the document-topic and word-topic distributions, lending itself to better generalization.
-
-And then we will combine the two dataset and do the same analysis.
+For this chapter, we analyzed the different topics used in the speeches. We used :
+- the Latent Semantic Analysis, which is going to decompose the DTM Matrix into the document-topic similarity, the topic strength and the term-to-topic similarity
+- and the Latent Dirichlet Allocation, that is a typical dimension reduction technique, which uses dirichlet priors for the document-topic and the word-topic distribution
+We have first analyzed the speeches of Johnson and Macron separately and we have then combined them together.
 
 ## Boris Johnson
 
@@ -65,7 +62,7 @@ The seven speech are class by chronological order:
   - 20 March (text7)
   - 22 March (text8)
   
-It is notable that the texts that are brought together over time are grouped together.And that the first speeches are the opposite of the last ones as we observe in the figure \@ref(fig:biplotboris)
+It is  noticeable that the texts that are closer in time are grouped together. And that the first speeches go in the opposite direction of the one of the last speeches, as we observe in the figure \@ref(fig:biplotboris).
 
 ```{r biplotboris,fig.cap="Biplot - Boris Johnson"}
 biplot(y=bmod$docs[,2:3],x=bmod$features[,2:3],
@@ -137,7 +134,7 @@ topics%>%
 
 ```
 
-We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the beta per topic according to this order. We observe in the figure \@ref(fig:betaboris) that the topic 1 that the 2 first terms are "now" and "go". We can image that the topic 1 is more focous on the urgency and on the keep going.
+We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the betas per topic according to this order. We observe in the figure \@ref(fig:betaboris) that topic 1 is correlated to the tokens "will", "go" and "want", topic 2 to the token "school" and topic 3 to the tokens "now", "can" and "will".
 
 ```{r betaboris,fig.cap="Beta - Boris Johnson"}
 beta.td.boris<-tidy(lda_boris,matrix="beta")
@@ -159,7 +156,8 @@ beta.top.term.boris %>%
 
 ```
 
-Now, we compute the gamma, it shows the proportion of each topic within each document, as you can observe in the figure \@ref(fig:gammaboris). We note that each document represented a text.The texts are very distinctive.
+Now, we compute the gamma, it shows the proportion of each topic within each document, as you can observe in the figure \@ref(fig:gammaboris). We see that the first speeches are related to topic 3 ("now", "can", "will"). This makes sense as those speeches were made in the begining of the pandemic and are linked to a sense of urgency. The speeches in the middle correspond to the second topic and all the measures implented for schools. The three last speeches are represented by the first topic only, and are correlated to the tokens "will", "go" and "want". We can conlude from this that the British Prime Minster wanted his citizens to keep up the efforts.
+
 
 ```{r gammaboris,fig.cap="Gamma - Boris Johnson"}
 gamma.td.boris<- tidy(lda_boris,matrix="gamma")
@@ -220,7 +218,7 @@ plot(ns_macron~mmod$docs [,1])
 
 We clearly observe that the dimension 1 is negatively correlated with the document lenght, as we observe in the figure \@ref(fig:lsamacron).
 
-Now in order to make the link between the topics and the documents and the topics with term, we use biplot \@ref(fig:biplotmacron).
+Now in order to make the link between the topics and the documents and the topics with term, we use biplot \@ref(fig:biplotmacron). We clearly observe in this figure that each text correspond to a specific topic, they don't do in the same direction.
 
 ```{r biplotmacron,fig.cap="Biplot - Emmanuel Macron"}
 biplot(y=mmod$docs[,2:3],x=mmod$features[,2:3],
@@ -228,10 +226,8 @@ biplot(y=mmod$docs[,2:3],x=mmod$features[,2:3],
        xlab = "Dimension 2",
        ylab="Dimension 3")
 ```
-We repeat the same analysis with TF-IDF
+We repeat the same analysis with TF-IDF, \@ref(tab:table-document-macron-2),\@ref(tab:table-term-macron-2)
 
-\@ref(tab:table-document-macron-2)
-\@ref(tab:table-term-macron-2)
 
 ```{r table-document-macron-2}
 mmod_2<- textmodel_lsa(corpus_macron.tfidf, nd=3)
@@ -254,76 +250,67 @@ lsa_features_macron_2%>%
   kable_styling(bootstrap_options = "striped")
 ```
 
-### LDA
 
-We now turn to the LDA. For illustration, we will make K=5 topis. 
+## Combine
+
+We combine the speeches of both authors in the same dataframe, that will have a total of ten speeches.
+
 ```{r,warning=FALSE}
-K<-5
-corpus_macron.dtm<- convert(corpus_macron.dfm, to="topicmodels")
-lda_macron<- LDA(corpus_macron.dtm ,k=K)
+##Boris Johnson
+boris_2<-as_tibble(c(boris9mars,boris12mars,boris16mars,boris18mars,boris19mars,boris20mars,boris22mars)) %>%
+  rename(
+  text=value)
+author="Boris Johnson"
+boris_2<- cbind(boris_2, author)
 
-```
-Top terms per topic and top topic per document can be easily obtained. Belo, the six top terms and the top topic are extracted.
-\@ref(tab:lda-macron-term)
+##Emmanuel Macron
+Macron_2<-as_tibble(c(macron12march,macron16march,macron13april)) %>% 
+  rename(
+    text = value)
 
-\@ref(tab:lda-macron-topic)
+author="Macron"
+macron_2<- cbind(Macron_2, author)
 
-```{r lda-macron-term,warning=FALSE}
-
-terms_macron<-terms(lda_macron,6)
-terms_macron<-data.frame(terms_macron)
-
-terms_macron %>%
-  kable(caption="List of the terms present in each topic") %>%
-  kable_styling(bootstrap_options = "striped")
-
-```
-
-```{r lda-macron-topic,warning=FALSE}
-
-topics_macron<-(topics(lda_macron,1))
-topics_macron<-data.frame(topics_macron)
-
-topics_macron%>%
-  kable(caption="Topics") %>%
-  kable_styling(bootstrap_options = "striped")
-```
+##Combine the 2 dataframes
+combine <- rbind(boris_2, macron_2)
 
 
-We now build the bar plot to inspect the per-topic-per-word probabilities (beta's). We take the 10 top terms and rearrange the beta per topic according to this order. 
+## Tokenization
+combine_corpus<-corpus(combine)
+combine_tokens<- tokens(combine_corpus, remove_numbers = TRUE, remove_punct = TRUE, remove_symbols = TRUE, remove_separators = TRUE)
 
-\@ref(fig:betamacron)
-```{r betamacron,fig.cap="Beta - Emmanuel Macron"}
+##combi Lemmatization
 
-beta.td.macron<-tidy(lda_macron,matrix="beta")
+combine_tokens <- tokens_replace(combine_tokens, pattern=hash_lemmas$token, replacement = hash_lemmas$lemma)
 
-beta.top.term.macron<-beta.td.macron %>%
-  group_by(topic) %>%
-  top_n(10, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
-
-beta.top.term.macron %>%
-  mutate(term=reorder_within(term, beta, topic)) %>%
-  ggplot(aes(term,beta,fill=factor(topic))) +
-  geom_col(show.legend = FALSE)+
-  facet_wrap(~topic, scales = "free") +
-  coord_flip()+
-  scale_x_reordered()
-
+## Cleaning
+combine_tokens = combine_tokens %>% 
+  tokens_tolower() %>% 
+  tokens_remove(stopwords("english"))
 ```
 
-Now, we compute the gamma, it shows the proportion of each topic within each document.  We note that text 1 is related to the topic 1 4 and 5. Th test 3 is related to the topic 2. And the text 2 is related to the topic 3.
-\@ref(fig:gammamacron)
+### LSA
 
-```{r gammamacron,fig.cap="Gamma - Emmanuel Macron",warning=FALSE}
-gamma.td.macron<- tidy(lda_macron,matrix="gamma")
 
-gamma.td.macron %>%
-  ggplot(aes(document,gamma,fill=factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic,scales = "free")+
-  coord_flip()+
-  scale_x_reordered()
+```{r,warning=FALSE}
+combine_corpus.dfm <- dfm(combine_tokens)
+cmod<-textmodel_lsa(combine_corpus.dfm,nd=6)
+```
+
+Often the first dimension in the LSA is associated with the document length. To see if it is true, we build a scatter-plot between the document length and Dimension 1. We clearly observe that the three last documents are the longest ones and they all correspond to Macron's speeches.
+
+```{r,warning=FALSE}
+ns_combine<-apply(combine_corpus.dfm,1,sum) 
+plot(ns_combine~cmod$docs [,1])
+```
+
+We then decide to proceed to the analysis using the second and third dimensions,figure \@ref(fig:biplot-combine), as we have observed that the first dimension is negatively correlated to the document length and does not therefore bring us a lot of information. We see that the speeches of Macron and Johnson are represented by different dimensions. Macron's speeches correspond better to the second dimension (documents 8, 9 and 10), whereas the third dimension is better represented by Johnson. This tells us that without building any further model and just by looking at the biplot corresponding to the second and third dimensions, we can guess whether a new corpus would belong to Johnson or to Macron.
+
+
+```{r biplot-combine,warning=FALSE}
+biplot(y=cmod$docs[,2:3],x=cmod$features[,2:3],
+       col=c("grey","red"),
+       xlab = "Dimension 2",
+       ylab="Dimension 3")
 ```
 

@@ -35,7 +35,7 @@ ggplot(data=boris.euc.mat, aes(x=Var1, y=Var2, fill=boris.euc.mat$value.std)) + 
 
 We then used two different clustering methods, hierarchical clustering (dendrogram) \@ref(fig:clustun) and partitioning (K-means method) \@ref(fig:clustdeux). We see that the results are quite similar. When looking at the 10 most common words per cluster, there are some words that appear when using the first method and the second one.
 
-```{r,clustun,fig.cap="Dendrogram - Hierarchical Clustering"}
+```{r clustun,fig.cap="Dendrogram - Hierarchical Clustering"}
 ## Clustering
 ## Jaccard Method
 boris.hc <- hclust(dist(boris.euc))
@@ -50,13 +50,13 @@ boris.clust <- cutree(boris.hc, k=3)
 boris.clust
 ```
 
-```{r,clustdeux,fig.cap="K-Means Method - Hierarchical Clustering"}
+```{r clustdeux,fig.cap="K-Means Method - Hierarchical Clustering"}
 ## K-means Method = Partitionning 
 boris.km <- kmeans(corpus_boris.tfidf, centers=3)
 boris.km$cluster
 ```
 
-```{r,clusttrois,fig.cap="Dendrogram - 10 Most Used Words"}
+```{r clusttrois,fig.cap="Dendrogram - 10 Most Used Words"}
 ### Extracting the 10 most used words - Dendrogram
 data.frame(
   clust1 = names(sort(apply(corpus_boris.tfidf[boris.clust==1,],2,sum), decreasing = TRUE)[1:10]),

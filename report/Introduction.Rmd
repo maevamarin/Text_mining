@@ -2,7 +2,6 @@
 
 ## Overview and Motivation
 
-# Introduction
 Since the pandemic, the politicians’ adresses to their citizens have multiplied and our goal was to run a comparative analysis based on the speeches of the UK Prime Minister Boris Johnson and the French President Emmanuel Macron, translated in English. Knowing that politician discourses are always cautiously constructed to have the expected impact of the population, we assumed some specificities and discriminatory features among their speeches. Here, we would neglect the effect of a potential poor translation. Our motivation was to find significant differences in the sentence structure and in sentiments conveyed to confirm our basis hypothesis and to construct a classifier of speeches via a supervised learner.
 
 The aim of our project in to analyse the discourses of politician Boris Johnson and Emmanuel Macron and to see if there is any major differences in terms of the vocabulary used, the lengths of the speeches and the sentiments related to the various speeches.
